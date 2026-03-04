@@ -14,6 +14,7 @@ app.use('/pedidos', pedidoRoutes);
  console.log(`Pedido Service rodando na porta ${process.env.PORT}`);
  });
  } catch (err) {
+console.log(process.env.DB_USER);
  console.error('Erro ao iniciar o Pedido Service:', err);
  }
 })();

@@ -11,13 +11,24 @@ const validarCliente = async (clienteId) => {
 };
 // Criar um novo pedido
 export const createPedido = async (req, res) => {
- try {
- await validarCliente(req.body.clienteId);
- const pedido = await Pedido.create(req.body);
- res.status(201).json(pedido);
- } catch (err) {
- res.status(400).json({ error: err.message });
- }
+  try {
+    const { clienteId, produtos } = req.body;
+
+    // validar cliente
+    await validarCliente(clienteId);
+
+    // validar cada produto
+    for (const produtoId of produtos) {
+      await validarProduto(produtoId);
+    }
+
+    const pedido = await Pedido.create(req.body);
+
+    res.status(201).json(pedido);
+
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 // Listar todos os pedidos
 export const getPedidos = async (req, res) => {
@@ -69,4 +80,15 @@ export const deletePedido = async (req, res) => {
  } catch (err) {
  res.status(500).json({ error: err.message });
   }
+};
+//função para validar o produto
+const validarProduto = async (produtoId) => {
+  const url = `${process.env.PRODUTO_SERVICE_URL}/${produtoId}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Produto ${produtoId} não encontrado`);
+  }
+
+  return res.json();
 };
